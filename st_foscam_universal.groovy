@@ -23,11 +23,11 @@ metadata {
 	}
     
     preferences {
-        input("ip", "string", title:"Camera IP Address/Hostname", description: "Camera IP Address/Hostname", required: true, displayDuringSetup: true)
+        input("ip", "string", title:"Camera IP Address", description: "Camera IP Address", required: true, displayDuringSetup: true)
         input("port", "string", title:"Camera Port", description: "Camera Port", defaultValue: 80 , required: true, displayDuringSetup: true)
-        input("username", "string", title:"Camera User", description: "Camera Username", required: true, displayDuringSetup: true)
+        input("username", "string", title:"Camera Username", description: "Camera Username", required: true, displayDuringSetup: true)
         input("password", "password", title:"Camera Password", description: "Camera Password", required: true, displayDuringSetup: true)
-        input("hdcamera", "bool", title:"HD Camera? (9xxx Series)", description: "Type of Foscam Camera", required: true, displayDuringSetup: true)
+        input("hdcamera", "bool", title:"HD Foscam Camera? (9xxx Series)", description: "Type of Foscam Camera", required: true, displayDuringSetup: true)
 	}
 
 	tiles {
@@ -36,10 +36,6 @@ metadata {
         standardTile("camera", "device.alarmStatus", width: 1, height: 1, canChangeIcon: true, inactiveLabel: true, canChangeBackground: true) {
           state "off", label: "off", action: "toggleAlarm", icon: "st.camera.dropcam-centered", backgroundColor: "#FFFFFF"
           state "on", label: "on", action: "toggleAlarm", icon: "st.camera.dropcam-centered",  backgroundColor: "#53A7C0"
-        }
-
-        standardTile("cameraold", "device.image", width: 1, height: 1, canChangeIcon: true, inactiveLabel: true, canChangeBackground: true) {
-          state "default", label: "", action: "Image Capture.take", icon: "st.camera.dropcam-centered", backgroundColor: "#FFFFFF"
         }
 
 		standardTile("take", "device.image", width: 1, height: 1, canChangeIcon: false, inactiveLabel: true, canChangeBackground: false) {
@@ -61,24 +57,24 @@ metadata {
         }
         
         standardTile("ledAuto", "device.ledStatus", width: 1, height: 1, canChangeIcon: false, inactiveLabel: true, canChangeBackground: false) {
-          state "auto", label: "auto", action: "ledAuto", icon: "st.Lighting.light13", backgroundColor: "#53A7C0"
+          state "auto", label: "auto", action: "ledAuto", icon: "st.Lighting.light11", backgroundColor: "#53A7C0"
           state "off", label: "auto", action: "ledAuto", icon: "st.Lighting.light13", backgroundColor: "#FFFFFF"
-          state "on", label: "auto", action: "ledAuto", icon: "st.Lighting.light11", backgroundColor: "#FFFFFF"
+          state "on", label: "auto", action: "ledAuto", icon: "st.Lighting.light13", backgroundColor: "#FFFFFF"
           state "manual", label: "auto", action: "ledAuto", icon: "st.Lighting.light13", backgroundColor: "#FFFFFF"
         }
 
         standardTile("ledOn", "device.ledStatus", width: 1, height: 1, canChangeIcon: false, inactiveLabel: true, canChangeBackground: false) {
-          state "auto", label: "on", action: "ledOn", icon: "st.Lighting.light13", backgroundColor: "#FFFFFF"
-          state "off", label: "on", action: "ledOn", icon: "st.Lighting.light13", backgroundColor: "#FFFFFF"
+          state "auto", label: "on", action: "ledOn", icon: "st.Lighting.light11", backgroundColor: "#FFFFFF"
+          state "off", label: "on", action: "ledOn", icon: "st.Lighting.light11", backgroundColor: "#FFFFFF"
           state "on", label: "on", action: "ledOn", icon: "st.Lighting.light11", backgroundColor: "#FFFF00"
-          state "manual", label: "on", action: "ledOn", icon: "st.Lighting.light13", backgroundColor: "#FFFF00"
+          state "manual", label: "on", action: "ledOn", icon: "st.Lighting.light11", backgroundColor: "#00FF00"
         }
         
         standardTile("ledOff", "device.ledStatus", width: 1, height: 1, canChangeIcon: false, inactiveLabel: true, canChangeBackground: false) {
           state "auto", label: "off", action: "ledOff", icon: "st.Lighting.light13", backgroundColor: "#FFFFFF"
           state "off", label: "off", action: "ledOff", icon: "st.Lighting.light13", backgroundColor: "#53A7C0"
-          state "on", label: "off", action: "ledOff", icon: "st.Lighting.light11", backgroundColor: "#FFFFFF"
-          state "manual", label: "off", action: "ledOff", icon: "st.Lighting.light13", backgroundColor: "#53A7C0"
+          state "on", label: "off", action: "ledOff", icon: "st.Lighting.light13", backgroundColor: "#FFFFFF"
+          state "manual", label: "off", action: "ledOff", icon: "st.Lighting.light13", backgroundColor: "#00FF00"
         }
         
         standardTile("refresh", "device.alarmStatus", inactiveLabel: false, decoration: "flat") {
@@ -86,7 +82,7 @@ metadata {
         }
         
         standardTile("blank", "device.image", width: 1, height: 1, canChangeIcon: false,  canChangeBackground: false, decoration: "flat") {
-          state "blank", label: "", action: "stop", icon: "", backgroundColor: "#53A7C0"
+          state "blank", label: "", action: "", icon: "", backgroundColor: "#FFFFFF"
         }
 
         main "camera"
