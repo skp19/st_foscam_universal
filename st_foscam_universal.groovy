@@ -17,9 +17,23 @@ metadata {
 		command "alarmOff"
 		command "toggleAlarm"
 		command "toggleLED"
+        
 		command "ledOn"
 		command "ledOff"
 		command "ledAuto"
+        
+		command "left"
+		command "right"
+		command "up"
+		command "down"
+        
+		command "cruisemap1"
+		command "cruisemap2"
+		command "stopCruise"
+        
+		command "preset1"
+		command "preset2"
+		command "preset3"
 	}
     
     preferences {
@@ -28,6 +42,13 @@ metadata {
         input("username", "string", title:"Camera Username", description: "Camera Username", required: true, displayDuringSetup: true)
         input("password", "password", title:"Camera Password", description: "Camera Password", required: true, displayDuringSetup: true)
         input("hdcamera", "bool", title:"HD Foscam Camera? (9xxx Series)", description: "Type of Foscam Camera", required: true, displayDuringSetup: true)
+        input("mirror", "bool", title:"Mirror? (Not required for HD cameras)", description: "Camera Mirrored?")
+        input("flip", "bool", title:"Flip? (Not required for HD cameras)", description: "Camera Flipped?")
+		input("preset1", "text", title: "Preset 1 (For HD cameras only)", description: "Name of your first preset position")
+		input("preset2", "text", title: "Preset 2 (For HD cameras only)", description: "Name of your second preset position")
+		input("preset3", "text", title: "Preset 3 (For HD cameras only)", description: "Name of your third preset position")
+		input("cruisemap1", "text", title: "Cruise Map 1 (For HD cameras only. Non-HD cameras will default to Horizontal.)", description: "Name of your first cruise map", defaultValue: "Horizontal")
+		input("cruisemap2", "text", title: "Cruise Map 2 (For HD cameras only. Non-HD cameras will default to Vertical.)", description: "Name of your second cruise map", defaultValue: "Vertical")
 	}
 
 	tiles {
@@ -77,6 +98,50 @@ metadata {
           state "manual", label: "off", action: "ledOff", icon: "st.Lighting.light13", backgroundColor: "#00FF00"
         }
         
+		standardTile("preset1", "device.image", width: 1, height: 1, canChangeIcon: false, canChangeBackground: false, decoration: "flat") {
+			state "preset1", label: "preset 1", action: "preset1", icon: ""
+		}
+
+		standardTile("preset2", "device.image", width: 1, height: 1, canChangeIcon: false, canChangeBackground: false, decoration: "flat") {
+			state "preset2", label: "preset 2", action: "preset2", icon: ""
+		}
+
+		standardTile("preset3", "device.image", width: 1, height: 1, canChangeIcon: false, canChangeBackground: false, decoration: "flat") {
+			state "preset3", label: "preset 3", action: "preset3", icon: ""
+		}
+        
+		standardTile("cruisemap1", "device.image", width: 1, height: 1, canChangeIcon: false, canChangeBackground: false, decoration: "flat") {
+			state "cruisemap1", label: "Cruise Map 1", action: "cruisemap1", icon: ""
+		}
+
+		standardTile("cruisemap2", "device.image", width: 1, height: 1, canChangeIcon: false, canChangeBackground: false, decoration: "flat") {
+			state "cruisemap2", label: "Cruise Map 2", action: "cruisemap2", icon: ""
+		}
+ 
+ 		standardTile("stopcruise", "device.image", width: 1, height: 1, canChangeIcon: false, canChangeBackground: false, decoration: "flat") {
+			state "stopcruise", label: "Stop Cruise", action: "stopCruise", icon: ""
+		}
+
+		standardTile("left", "device.image", width: 1, height: 1, canChangeIcon: false,  canChangeBackground: false, decoration: "flat") {
+			state "left", label: "left", action: "left", icon: ""
+		}
+
+		standardTile("right", "device.image", width: 1, height: 1, canChangeIcon: false,  canChangeBackground: false, decoration: "flat") {
+			state "right", label: "right", action: "right", icon: ""
+		}
+
+		standardTile("up", "device.image", width: 1, height: 1, canChangeIcon: false, canChangeBackground: false, decoration: "flat") {
+			state "up", label: "up", action: "up", icon: "st.thermostat.thermostat-up"
+		}
+
+		standardTile("down", "device.image", width: 1, height: 1, canChangeIcon: false, canChangeBackground: false, decoration: "flat") {
+			state "down", label: "down", action: "down", icon: "st.thermostat.thermostat-down"
+		}
+
+		standardTile("stop", "device.image", width: 1, height: 1, canChangeIcon: false,  canChangeBackground: false, decoration: "flat") {
+			state "stop", label: "", action: "stopCruise", icon: "st.sonos.stop-btn"
+		}
+
         standardTile("refresh", "device.alarmStatus", inactiveLabel: false, decoration: "flat") {
           state "refresh", action:"polling.poll", icon:"st.secondary.refresh"
         }
@@ -86,10 +151,12 @@ metadata {
         }
 
         main "camera"
-          details(["cameraDetails", "take", "blank", "alarmStatus", "ledAuto", "ledOn", "ledOff", "refresh"])
+			//details(["cameraDetails", "take", "blank", "alarmStatus", "ledAuto", "ledOn", "ledOff", "refresh"]) //**Uncomment this line and comment out the next line to hide the PTZ controls
+			details(["cameraDetails", "take", "blank", "alarmStatus", "ledAuto", "ledOn", "ledOff", "preset1", "preset2", "preset3", "cruisemap1", "cruisemap2", "stopcruise", "blank", "up", "blank", "left", "stop", "right", "blank", "down", "blank", "refresh"])
 	}
 }
 
+//TAKE PICTURE
 def take() {
 	log.debug("Taking Photo")
 	sendEvent(name: "hubactionMode", value: "s3");
@@ -100,7 +167,9 @@ def take() {
     	hubGet("/snapshot.cgi?")
     }
 }
+//END TAKE PICTURE
 
+//ALARM ACTIONS
 def toggleAlarm() {
 	log.debug "Toggling Alarm"
 	if(device.currentValue("alarmStatus") == "on") {
@@ -132,7 +201,9 @@ def alarmOff() {
     	hubGet("/set_alarm.cgi?motion_armed=0&")
     }
 }
+//END ALARM ACTIONS
 
+//LED ACTIONS
 //Toggle LED's
 def toggleLED() {
   log.debug("Toggle LED")
@@ -182,6 +253,129 @@ def ledAuto() {
     	hubGet("/decoder_control.cgi?command=95&")
     }
 }
+//END LED ACTIONS
+
+//PRESET ACTIONS
+def preset1() {
+	log.debug("Preset 1 Selected - ${preset1}")
+	if(hdcamera == "true") {
+		hubGet("cmd=ptzGotoPresetPoint&name=${preset1}")
+    }
+    else {
+    	hubGet("/decoder_control.cgi?command=31&")
+    }
+}
+
+def preset2() {
+	log.debug("Preset 2 Selected - ${preset2}")
+	if(hdcamera == "true") {
+		hubGet("cmd=ptzGotoPresetPoint&name=${preset2}")
+    }
+    else {
+    	hubGet("/decoder_control.cgi?command=33&")
+    }
+}
+
+def preset3() {
+	log.debug("Preset 3 Selected - ${preset3}")
+	if(hdcamera == "true") {
+		hubGet("cmd=ptzGotoPresetPoint&name=${preset3}")
+    }
+    else {
+    	hubGet("/decoder_control.cgi?command=35&")
+    }
+}
+//END PRESET ACTIONS
+
+//CRUISE ACTIONS
+def cruisemap1() {
+	log.debug("Cruise Map 1 Selected - ${cruisemap1}")
+	if(hdcamera == "true") {
+		hubGet("cmd=ptzStartCruise&mapName=${cruisemap1}")
+    }
+    else {
+    	hubGet("/decoder_control.cgi?command=28&")
+    }
+}
+
+def cruisemap2() {
+	log.debug("Cruise Map 2 Selected - ${cruisemap2}")
+	if(hdcamera == "true") {
+		hubGet("cmd=ptzStartCruise&mapName=${cruisemap2}")
+    }
+    else {
+    	hubGet("/decoder_control.cgi?command=26&")
+    }
+}
+
+def stopCruise() {
+	log.debug("Stop Cruise")
+	if(hdcamera == "true") {
+		hubGet("cmd=ptzStopRun")
+    }
+    else {
+    	delayBetween([hubGet("/decoder_control.cgi?command=29&"), hubGet("/decoder_control.cgi?command=27&")])
+    }
+}
+//END CRUISE ACTIONS
+
+//PTZ CONTROLS
+def left() {
+	if(hdcamera == "true") {
+		delayBetween([hubGet("cmd=ptzMoveLeft"), hubGet("cmd=ptzStopRun")])
+    }
+    else {
+    	if(mirror == "true") {
+	    	hubGet("/decoder_control.cgi?command=4&onestep=1&")
+        }
+        else {
+        	hubGet("/decoder_control.cgi?command=6&onestep=1&")
+        }
+    }
+}
+
+def right() {
+	if(hdcamera == "true") {
+		delayBetween([hubGet("cmd=ptzMoveRight"), hubGet("cmd=ptzStopRun")])
+    }
+    else {
+    	if(mirror == "true") {
+	    	hubGet("/decoder_control.cgi?command=6&onestep=1&")
+        }
+        else {
+        	hubGet("/decoder_control.cgi?command=4&onestep=1&")
+        }
+    }
+}
+
+def up() {
+	if(hdcamera == "true") {
+        delayBetween([hubGet("cmd=ptzMoveUp"), hubGet("cmd=ptzStopRun")])
+    }
+    else {
+    	if(flip == "true") {
+	    	hubGet("/decoder_control.cgi?command=2&onestep=1&")
+        }
+        else {
+        	hubGet("/decoder_control.cgi?command=0&onestep=1&")
+        }
+    }
+}
+
+def down() {
+	if(hdcamera == "true") {
+        delayBetween([hubGet("cmd=ptzMoveDown"), hubGet("cmd=ptzStopRun")])
+    }
+    else {
+    	if(flip == "true") {
+    		hubGet("/decoder_control.cgi?command=0&onestep=1&")
+        }
+        else {
+        	hubGet("/decoder_control.cgi?command=2&onestep=1&")
+        }
+    }
+}
+//END PTZ CONTROLS
 
 def poll() {
 
@@ -197,7 +391,7 @@ def poll() {
 
 private getLogin() {
 	if(hdcamera == "true") {
-    	return "&usr=${username}&pwd=${password}"
+    	return "usr=${username}&pwd=${password}&"
     }
     else {
     	return "user=${username}&pwd=${password}"
@@ -214,7 +408,7 @@ private hubGet(def apiCommand) {
 	log.debug("Executing hubaction on " + getHostAddress())
     def uri = ""
     if(hdcamera == "true") {
-    	uri = "/cgi-bin/CGIProxy.fcgi?" + apiCommand + getLogin()
+    	uri = "/cgi-bin/CGIProxy.fcgi?" + getLogin() + apiCommand
 	}
     else {
     	uri = apiCommand + getLogin()
