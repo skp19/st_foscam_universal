@@ -3,6 +3,8 @@
  *
  *  Copyright 2014 skp19
  *
+ *  modified 2015-06-04 :  thrash99er  - changed bool comparsions from string to bool  i.e.  "true" to true
+ *
  */
 metadata {
 	definition (name: "Foscam Universal Device", namespace: "skp19", author: "skp19") {
@@ -160,7 +162,7 @@ metadata {
 def take() {
 	log.debug("Taking Photo")
 	sendEvent(name: "hubactionMode", value: "s3");
-    if(hdcamera == "true") {
+    if(hdcamera == true) {
 		hubGet("cmd=snapPicture2")
     }
     else {
@@ -183,8 +185,8 @@ def toggleAlarm() {
 def alarmOn() {
 	log.debug "Enabling Alarm"
     sendEvent(name: "alarmStatus", value: "on");
-    if(hdcamera == "true") {
-		hubGet("cmd=setMotionDetectConfig&isEnable=1")
+    if(hdcamera == true) {
+       hubGet("cmd=setMotionDetectConfig&isEnable=1")
     }
     else {
     	hubGet("/set_alarm.cgi?motion_armed=1&")
@@ -194,7 +196,7 @@ def alarmOn() {
 def alarmOff() {
 	log.debug "Disabling Alarm"
     sendEvent(name: "alarmStatus", value: "off");
-    if(hdcamera == "true") {
+    if(hdcamera == true) {
 		hubGet("cmd=setMotionDetectConfig&isEnable=0")
     }
     else {
@@ -224,7 +226,7 @@ def toggleLED() {
 def ledOn() {
     log.debug("LED changed to: on")
     sendEvent(name: "ledStatus", value: "on");
-    if(hdcamera == "true") {
+    if(hdcamera == true) {
 	    delayBetween([hubGet("cmd=setInfraLedConfig&mode=1"), hubGet("cmd=openInfraLed")])
     }
     else {
@@ -246,7 +248,7 @@ def ledOff() {
 def ledAuto() {
     log.debug("LED changed to: auto")
     sendEvent(name: "ledStatus", value: "auto");
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
 		hubGet("cmd=setInfraLedConfig&mode=0")
     }
     else {
@@ -258,7 +260,7 @@ def ledAuto() {
 //PRESET ACTIONS
 def preset1() {
 	log.debug("Preset 1 Selected - ${preset1}")
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
 		hubGet("cmd=ptzGotoPresetPoint&name=${preset1}")
     }
     else {
@@ -268,7 +270,7 @@ def preset1() {
 
 def preset2() {
 	log.debug("Preset 2 Selected - ${preset2}")
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
 		hubGet("cmd=ptzGotoPresetPoint&name=${preset2}")
     }
     else {
@@ -278,7 +280,7 @@ def preset2() {
 
 def preset3() {
 	log.debug("Preset 3 Selected - ${preset3}")
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
 		hubGet("cmd=ptzGotoPresetPoint&name=${preset3}")
     }
     else {
@@ -290,7 +292,7 @@ def preset3() {
 //CRUISE ACTIONS
 def cruisemap1() {
 	log.debug("Cruise Map 1 Selected - ${cruisemap1}")
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
 		hubGet("cmd=ptzStartCruise&mapName=${cruisemap1}")
     }
     else {
@@ -300,7 +302,7 @@ def cruisemap1() {
 
 def cruisemap2() {
 	log.debug("Cruise Map 2 Selected - ${cruisemap2}")
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
 		hubGet("cmd=ptzStartCruise&mapName=${cruisemap2}")
     }
     else {
@@ -310,7 +312,7 @@ def cruisemap2() {
 
 def stopCruise() {
 	log.debug("Stop Cruise")
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
 		hubGet("cmd=ptzStopRun")
     }
     else {
@@ -349,11 +351,11 @@ def right() {
 }
 
 def up() {
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
         delayBetween([hubGet("cmd=ptzMoveUp"), hubGet("cmd=ptzStopRun")])
     }
     else {
-    	if(flip == "true") {
+    	if(flip == true) {
 	    	hubGet("/decoder_control.cgi?command=2&onestep=1&")
         }
         else {
@@ -363,11 +365,11 @@ def up() {
 }
 
 def down() {
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
         delayBetween([hubGet("cmd=ptzMoveDown"), hubGet("cmd=ptzStopRun")])
     }
     else {
-    	if(flip == "true") {
+    	if(flip == true) {
     		hubGet("/decoder_control.cgi?command=0&onestep=1&")
         }
         else {
@@ -381,7 +383,7 @@ def poll() {
 
 	sendEvent(name: "hubactionMode", value: "local");
     //Poll Motion Alarm Status and IR LED Mode
-    if(hdcamera == "true") {
+    if(hdcamera == true) {
 		delayBetween([hubGet("cmd=getMotionDetectConfig"), hubGet("cmd=getInfraLedConfig")])
     }
     else {
@@ -390,7 +392,7 @@ def poll() {
 }
 
 private getLogin() {
-	if(hdcamera == "true") {
+	if(hdcamera == true) {
     	return "usr=${username}&pwd=${password}&"
     }
     else {
@@ -407,7 +409,7 @@ private hubGet(def apiCommand) {
 
 	log.debug("Executing hubaction on " + getHostAddress())
     def uri = ""
-    if(hdcamera == "true") {
+    if(hdcamera == true) {
     	uri = "/cgi-bin/CGIProxy.fcgi?" + getLogin() + apiCommand
 	}
     else {
@@ -442,7 +444,7 @@ def parse(String description) {
 	//Status Polling
     else if (descMap["headers"] && descMap["body"]) {
         def body = new String(descMap["body"].decodeBase64())
-        if(hdcamera == "true") {
+        if(hdcamera == true) {
             def langs = new XmlSlurper().parseText(body)
 
             def motionAlarm = "$langs.isEnable"
